@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chenfei.community.mapper.UserMapper">  <!-- 要 映射的xml文件所在位置-->
+ 	<select id="getAllUsers" resultType="com.chenfei.community.model.User" parameterType="list">  <!-- 传入值类型parameterType -->
+ 		select * from user where id in 
+ 		<foreach collection="ids" item="item_id" separator="," open="(" close=")">
+ 		 #{item_id}
+ 		</foreach>
+ 	</select>
+ 	
+</mapper>
