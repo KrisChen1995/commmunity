@@ -10,4 +10,27 @@
  		</foreach>
  	</select>
  	
+ 	<select id="selectRelated"  resultType="com.chenfei.community.model.Question" parameterType="com.chenfei.community.model.Question">
+ 		select * from question where id!=#{id} and regexp #{tag}
+ 	</select>
+ 	
+ 	<select id="countBySearch" resultType="Integer" parameterType="com.chenfei.community.dto.QuestionQueryDTO">
+ 		select count(*) from question 
+ 		<where>
+ 			<if test="search != null">
+ 				and title regexp #{search}
+ 			</if>
+ 		</where>
+ 		
+ 	</select>
+ 	
+ 	<select id="selectBySearch" resultType="com.chenfei.community.model.Question" parameterType="com.chenfei.community.dto.QuestionQueryDTO">
+ 		select * from question 
+ 		<where>
+ 			<if test="search != null">
+ 				and title regexp #{search}
+ 			</if>
+ 		</where>
+ 		order by gmt_create DESC limit #{page}, #{size}
+ 	</select>
 </mapper>

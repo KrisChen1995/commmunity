@@ -33,9 +33,11 @@ public class QuestionController {
 		//累加阅读数
 		questionService.getViewCount(id);
 		QuestionDTO questionDTO = questionService.getQuestionByid(id);
+		List<QuestionDTO> relatedQuestions = questionService.selectRelated(questionDTO);
 		List<CommentDTO> comments = commentService.getComment(id, CommentTypeEnum.QUESTION.getType());
 		model.addAttribute("questionDTO", questionDTO);
-		model.addAttribute("comments", comments);	
+		model.addAttribute("comments", comments);
+		model.addAttribute("relatedQuestions", relatedQuestions);
 		return "question";
 	}
 }

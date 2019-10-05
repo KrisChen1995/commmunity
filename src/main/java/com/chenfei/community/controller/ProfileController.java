@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.chenfei.community.dto.PaginationDTO;
 import com.chenfei.community.model.User;
+import com.chenfei.community.service.NotificationService;
 import com.chenfei.community.service.QuestionService;
 
 @Controller
@@ -18,6 +19,9 @@ public class ProfileController {
 	
 	@Autowired
 	private QuestionService questionService ;
+	
+	@Autowired
+	private NotificationService notificationService ;
 	
 	@GetMapping("/profile/{action}")
 	public String profile(@PathVariable(name="action") String action,Model model,
@@ -32,13 +36,17 @@ public class ProfileController {
 		if("questions".equals(action)) {
 			model.addAttribute("section", "questions");
 			model.addAttribute("sectionName", "我的问题");
+			PaginationDTO paginationDTO = questionService.list(user.getId() ,page, size) ;
+			model.addAttribute("paginationDTO", paginationDTO);
 		}else if("replies".equals(action)) {
+			
+			PaginationDTO notificationDTO =  notificationService.list(user.getId(), page, size);
+			model.addAttribute("notificationDTO", notificationDTO);
 			model.addAttribute("section", "replies");
 			model.addAttribute("sectionName", "最新回复");
 		}
 		
-		PaginationDTO paginationDTO = questionService.list(user.getId() ,page, size) ;
-		model.addAttribute("paginationDTO", paginationDTO);
+		
 		return "profile" ;
 	}
 	

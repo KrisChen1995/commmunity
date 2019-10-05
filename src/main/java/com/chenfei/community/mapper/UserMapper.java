@@ -7,6 +7,8 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import com.chenfei.community.dto.QuestionQueryDTO;
+import com.chenfei.community.model.Question;
 import com.chenfei.community.model.User;
 
 public interface UserMapper {
@@ -26,4 +28,11 @@ public interface UserMapper {
 	void update(User User);
 	
 	List<User> getAllUsers(@Param("ids") List<Long> ids);
+
+	Integer countBySearch(QuestionQueryDTO questionQueryDTO);
+
+	List<Question> selectBySearch(QuestionQueryDTO questionQueryDTO);
+
+	
+	
 }

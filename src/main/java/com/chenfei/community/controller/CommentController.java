@@ -52,6 +52,7 @@ public class CommentController {
 		return ResultDTO.okOf() ;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@ResponseBody
 	@RequestMapping(value="/comment/{id}", method=RequestMethod.GET)
 	public ResultDTO<List<CommentDTO>> comments(@PathVariable("id") Long id) {

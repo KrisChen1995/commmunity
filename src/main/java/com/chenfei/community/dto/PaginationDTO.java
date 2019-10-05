@@ -8,11 +8,11 @@ import lombok.Data;
 @Data
 public class PaginationDTO {
 	private List<QuestionDTO> questionsDTO ;
+	private List <NotificationDTO> notificationsDTO ;
 	private boolean hasPage ; //是否还有前一页
 	private boolean hasFirstPage ; //是否还有第一页
 	private boolean hasNextPage ; //是否还有下一页
 	private boolean hasEndPage ; //是否还有最后一页
-	
 	private Integer currentPage ; //当前页码
 	private List<Integer> currentPages = new ArrayList<Integer>(); //当前页展示的所有页
 	private Integer totalPage ;

@@ -12,11 +12,11 @@ import com.chenfei.community.model.Comment;
 
 public interface CommentMapper {
 	
-	@Insert("insert into comment (parent_id,gmt_create,gmt_modified,commentator,type,like_count,content,comment_count) values (#{parentId},#{gmtCreate},#{gmtModified},#{commentator},#{type},#{likeCount},#{content},#{commentCount})")
+	@Insert("insert into comment (parent_id,gmt_create,gmt_modified,commentator,type,like_count,content) values (#{parentId},#{gmtCreate},#{gmtModified},#{commentator},#{type},#{likeCount},#{content})")
 	void insert(Comment comment);
 	
-	@Update("update comment set comment_count = #{commentCount} where id = #{id}")
-	Integer count(Comment comment);
+	@Update("update comment set comment_count = #{commentCount} where id= #{id}")
+	Integer updateCount(Comment comment);
 	
 	@Select("select count(1) from comment where parent_id= #{parentId}")
 	Integer countByparentId(@Param("parentId") Long parentId);
@@ -27,7 +27,8 @@ public interface CommentMapper {
 	@Select("select * from comment where parent_id= #{parentId} and type=#{type} order by gmt_create desc")
 	List<Comment> getComment(@Param("parentId") Long parentId, @Param("type") Integer type);
 	
-	@Select("select * from comment where parent_id= #{prentId}")
+	@Select("select count(1) from comment where id= #{id}")
+	Integer countById(@Param("id") Long id);
 
 	@Update("update comment set parent_id=#{parentId},gmt_create=#{gmtCreate},gmt_modified=#{gmtModified},commentator=#{commentator},type=#{type},like_count=#{likeCount},content=#{content} where id=#{id}")
 	int update(Comment comment);

@@ -13,12 +13,16 @@ import org.springframework.stereotype.Service;
 
 import com.chenfei.community.dto.CommentDTO;
 import com.chenfei.community.enums.CommentTypeEnum;
+import com.chenfei.community.enums.NotificationStatusEnum;
+import com.chenfei.community.enums.NotificationTypeEnum;
 import com.chenfei.community.exception.CustomizeErrorCode;
 import com.chenfei.community.exception.CustomizeException;
 import com.chenfei.community.mapper.CommentMapper;
+import com.chenfei.community.mapper.NotificationMapper;
 import com.chenfei.community.mapper.QuestionMapper;
 import com.chenfei.community.mapper.UserMapper;
 import com.chenfei.community.model.Comment;
+import com.chenfei.community.model.Notification;
 import com.chenfei.community.model.Question;
 import com.chenfei.community.model.User;
 
@@ -34,6 +38,10 @@ public class CommentService {
 	
 	@Autowired
 	private UserMapper userMapper ;
+	
+	@Autowired
+	NotificationMapper notificationMapper ;
+	
 	//处理事务注解
 	@Transactional
 	public void insert(Comment comment) {
@@ -50,7 +58,24 @@ public class CommentService {
 			if(dbComment == null) {
 				throw new CustomizeException(CustomizeErrorCode.COMMENT_NOT_FOUND);
 			}
+			if(dbComment.getCommentCount() == null) {
+				dbComment.setCommentCount(0);
+			}
 			commentMapper.insert(comment);
+			Integer commentCount = dbComment.getCommentCount();
+			Comment parentComment = new Comment() ;
+			parentComment.setId(dbComment.getId());
+			parentComment.setCommentCount(commentCount + 1);
+			commentMapper.updateCount(parentComment);
+			Notification notification = new Notification();
+			notification.setGmtCreate(System.currentTimeMillis());
+			notification.setType(NotificationTypeEnum.REPLY_COMMENT.getType());
+			notification.setOuterId(comment.getParentId());
+			notification.setNotifier(comment.getCommentator());
+			notification.setStatus(NotificationStatusEnum.UNREAD.getStatus());
+			notification.setReceiver(dbComment.getCommentator());
+			notificationMapper.insert(notification);
+			
 			
 		}else {
 			//回复问题
@@ -62,6 +87,14 @@ public class CommentService {
 			Integer commentCount = commentMapper.countByparentId(comment.getParentId());
 			question.setCommentCount(commentCount);
 			questionMapper.updateCommentCount(question);
+			Notification notification = new Notification();
+			notification.setGmtCreate(System.currentTimeMillis());
+			notification.setType(NotificationTypeEnum.REPLY_QUESTION.getType());
+			notification.setOuterId(comment.getParentId());
+			notification.setNotifier(comment.getCommentator());
+			notification.setStatus(NotificationStatusEnum.UNREAD.getStatus());
+			notification.setReceiver(question.getCreator());
+			notificationMapper.insert(notification);
 		}
 		
 	}

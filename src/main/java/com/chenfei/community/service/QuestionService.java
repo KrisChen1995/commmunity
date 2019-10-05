@@ -1,14 +1,18 @@
 package com.chenfei.community.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.chenfei.community.dto.PaginationDTO;
 import com.chenfei.community.dto.QuestionDTO;
+import com.chenfei.community.dto.QuestionQueryDTO;
 import com.chenfei.community.exception.CustomizeErrorCode;
 import com.chenfei.community.exception.CustomizeException;
 import com.chenfei.community.mapper.QuestionMapper;
@@ -25,11 +29,18 @@ public class QuestionService {
 	@Autowired
 	private QuestionMapper questionMapper ;
 	
-	public PaginationDTO queryList(Integer page, Integer size) {
+	public PaginationDTO queryList(String search, Integer page, Integer size) {
+		if(StringUtils.isNotBlank(search)) {
+			String[] tags = StringUtils.split(search,' ');
+			search = Arrays.asList(tags).stream().collect(Collectors.joining("|"));
+		}
+		
 		
 		PaginationDTO paginationDTO = new PaginationDTO();
+		QuestionQueryDTO questionQueryDTO = new QuestionQueryDTO();
+		questionQueryDTO.setSearch(search);
 		Integer totalPage ;
-		Integer totalCount = questionMapper.count();
+		Integer totalCount = userMapper.countBySearch(questionQueryDTO);
 		if(totalCount % size == 0) {
 			totalPage = totalCount / size  ;
 		}else {
@@ -48,7 +59,9 @@ public class QuestionService {
 		
 		//分页   size*(page-1)
 		Integer offset = size*(page-1) ;
-		List<Question> questions = questionMapper.queryList(offset,size);
+		questionQueryDTO.setSize(size);
+		questionQueryDTO.setPage(offset);
+		List<Question> questions = userMapper.selectBySearch(questionQueryDTO);
 		List<QuestionDTO> questionsDTOList = new ArrayList<QuestionDTO>();
 		
 		for(Question question : questions) {
@@ -139,6 +152,24 @@ public class QuestionService {
 		question.setViewCount(viewCount + 1);
 		questionMapper.updateViewCount(question);
 		
+	}
+
+	public List<QuestionDTO> selectRelated(QuestionDTO questionDTO) {
+		if(StringUtils.isBlank(questionDTO.getTag())) {
+			return new ArrayList<QuestionDTO>();
+		}
+		String[] tags = StringUtils.split(questionDTO.getTag(),',');
+		String regexpTag = Arrays.asList(tags).stream().collect(Collectors.joining("|"));
+		Question question = new Question();
+		question.setId(questionDTO.getId());
+		question.setTag(regexpTag);
+		List<Question> questions = questionMapper.selectRelated(question);
+		List<QuestionDTO> questionsDTO = questions.stream().map(q->{
+			QuestionDTO turnQuestionDTO =  new QuestionDTO();
+			BeanUtils.copyProperties(q, turnQuestionDTO);
+			return turnQuestionDTO;
+		}).collect(Collectors.toList());
+		return questionsDTO ;
 	}
 
 }
